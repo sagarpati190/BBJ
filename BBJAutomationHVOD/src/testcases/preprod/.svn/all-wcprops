@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/CM_HVOD/!svn/ver/29/src/testcases/preprod
+END
+CreateCollection.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/CM_HVOD/!svn/ver/26/src/testcases/preprod/CreateCollection.java
+END
+CreateSingle.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/CM_HVOD/!svn/ver/29/src/testcases/preprod/CreateSingle.java
+END
+CreateSeries.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/CM_HVOD/!svn/ver/26/src/testcases/preprod/CreateSeries.java
+END

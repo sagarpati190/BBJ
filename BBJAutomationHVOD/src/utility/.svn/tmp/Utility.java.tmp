@@ -1,0 +1,286 @@
+package utility;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+
+public class Utility {
+	public static String strScenerioName=null;
+	public static int rowNum=0;
+	//public static String desktopPath = (System.getProperty("user.home") + "\\desktop");
+	public static String publicUserDir = ("C:\\Users\\Public");
+    public static String BasePath = publicUserDir + "\\NewE2E_Vision_Auto";
+    public static String DatablePath = BasePath+"\\DataTable";
+    public static String UtilityPath = BasePath+"\\Utility";
+    public static String ReportPath;
+    public static String strVospRendition;
+    
+    public static ArrayList<String> platformValueArr = new ArrayList<String>();
+    
+   
+    public static void setScenerioName(String strScenerioName){
+		Utility.strScenerioName = strScenerioName;
+	}
+	
+	public static String getScenerioName(){
+		//strScenerioName = "Create New Single Standalone Title (Feature)_EST SD_ComingSoon";
+		return strScenerioName;
+	}
+	
+	
+	public boolean buttonClickable(WebDriver driver,By Element) {
+		try{
+			WebDriverWait wait = new WebDriverWait(driver, 300);
+			wait.until(ExpectedConditions.elementToBeClickable(Element));
+			driver.findElement(Element);
+		}catch(Exception e){
+			return false;
+		}
+		return true;
+	}
+	
+	/*Check element exist or not*/
+	public boolean  existsElement(By by, WebDriver driver) {
+		try {
+			WebDriverWait wait1 = new WebDriverWait(driver, 120);
+			wait1.until(ExpectedConditions.presenceOfElementLocated(by));
+			driver.findElement(by);
+			return  true;
+		} 
+		catch (Exception e) {
+			return false;
+		}
+		
+	}
+	//********************************************************************************************************************
+	
+	/*read from excel(Using Column name)*/
+	public String xlRead(String colName){ 
+		String value="";
+		try{			
+			int rownum=rowNum;// getRowCount();
+			System.out.println("DatablePath-->>>>"+DatablePath);
+			Workbook workbook = WorkbookFactory.create(new FileInputStream(DatablePath+"\\BBJ BatchRunner.xls"));
+			//Workbook workbook = WorkbookFactory.create(new FileInputStream("C:\\Users\\607518700\\Desktop\\E2E_Vision_Auto\\Data Table\\BBJ BatchRunner.xls"));
+			Sheet sheet = workbook.getSheet("Test Data");
+
+			for(int cols=0;cols<100;cols++){
+				String Field = sheet.getRow(9).getCell(cols).getStringCellValue();
+
+
+				if(Field.equals(colName)){
+
+					Cell cell= sheet.getRow(rownum).getCell(cols);
+
+					if( cell.getCellType()==Cell.CELL_TYPE_NUMERIC){
+						value= String.valueOf(cell.getNumericCellValue());
+					}
+					else if( cell.getCellType()==Cell.CELL_TYPE_STRING ){
+
+						value= cell.getStringCellValue();
+						System.out.println(value);
+
+					}
+					else if( cell.getCellType()==Cell.CELL_TYPE_FORMULA ){
+						value= cell.getStringCellValue();
+					}
+					else {
+
+					}
+					break;
+				}
+
+
+			} 
+		}catch(Exception e){
+			System.out.println("Unable to read values from excel");
+		}
+		return value; 
+	}
+	//*****************************************************************************************************************
+	
+	public String getOldDate(int numOfDays){
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -1 * numOfDays);
+		Date date = cal.getTime();             
+		SimpleDateFormat format1 = new SimpleDateFormat("dd-MM-yyyy-hh-mm"); 
+		return format1.format(date);
+	    
+	}
+	
+	public String getFutureDate(int numOfDays){
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, numOfDays);
+		Date date = cal.getTime();             
+		SimpleDateFormat format1 = new SimpleDateFormat("dd-MM-yyyy-hh-mm"); 
+		return format1.format(date);
+	}
+	
+	/*read value from excel*/
+	public String xlreadint(int row,int col){
+		Workbook w;
+		String v="";
+		try {
+			/*Time*/
+			//System.out.println("Datapath====>"+DataPath);
+			w = WorkbookFactory.create(new FileInputStream(DatablePath+"\\BBJ BatchRunner.xls"));
+			//w = WorkbookFactory.create(new FileInputStream("C:\\Users\\607518700\\Desktop\\E2E_Vision_Auto\\Data Table\\BBJ BatchRunner.xls"));
+			Sheet sh = w.getSheet("Test Data"); 
+			Cell cell =sh.getRow(row).getCell(col);
+
+			if( cell.getCellType()==Cell.CELL_TYPE_NUMERIC){
+
+				v= String.valueOf(cell.getNumericCellValue());
+			}
+			else if( cell.getCellType()==Cell.CELL_TYPE_STRING ){
+
+				v= cell.getStringCellValue();
+			}
+			/*Path*/
+
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return v;
+	}	
+	//*****************************************************************************************************************
+	//-------------------------To write in Source file for SFG Check---------------------------------------------------
+	
+			public void ForSFGCheck(String Status, String SchedulingID){
+
+				//This Module Log's writes the output data of the assets into SFG excel Source File 
+				
+				String SheetNameTitle ="Source";
+				String value="";
+				String Sourcepath="C:\\E2E_Vision_Auto\\Source";
+				try{
+					Workbook workbook = WorkbookFactory.create(new FileInputStream(Sourcepath+"\\Source.xls"));
+					 Sheet sheet = workbook.getSheet("Source");
+					 
+					 int cols=0;
+					 for(int row=0;row<100;row++){
+					       Cell cell= sheet.getRow(row).getCell(cols);
+					       value= cell.getStringCellValue();
+					       System.out.println("value"+value);
+					       System.out.println("Cols"+cols);
+					       
+					       if (value!="") {
+					    	   System.out.println("Next line");
+					       }
+					       else{
+					    	   	   String IngestedTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
+						    	   System.out.println("IngestedTime"+IngestedTime);
+						    	xlWrite("TestScenario",xlRead("Test Scenario"),SheetNameTitle,row);
+						    	xlWrite("Environment",xlRead("Enviornment"),SheetNameTitle,row);
+						        xlWrite("ContentType",xlRead("ContentType"),SheetNameTitle,row);
+								xlWrite("AssetName",xlRead("AssetTitle"),SheetNameTitle,row);
+								xlWrite("BebanjoStatus",Status,SheetNameTitle,row);
+								xlWrite("Externalld",SchedulingID,SheetNameTitle,row);
+								xlWrite("IngestedTime",IngestedTime,SheetNameTitle,row);
+					    	    break;
+					       }
+						 }
+					
+					//Process process=Runtime.getRuntime().exec("cmd /c start /wait  \"\" \"" + "C:\\E2E_Vision_Auto\\SFGCheck\\Polling.bat"+"\"");
+					//process.waitFor();
+				}
+				catch(Exception e){
+					e.printStackTrace();
+					
+				}
+			}		
+
+	//-------------------------To write in Source file for SFG Check---------------------------------------------------
+			
+			//*****************************************************************************************************************
+			/*read from excel*/
+			public void xlWrite(String colName,String colValue,String SheetNameTitle,int j){
+
+			
+			String SheetName="";
+			int rownum;
+			String sheetNm="";
+			String retVal="";
+				
+				SheetNameTitle="Source";
+				System.out.println("j value-"+j);
+				rownum=j;
+				sheetNm="Source";
+				SheetName="C:\\E2E_Vision_Auto\\Source\\"+SheetNameTitle+".xls" ;					
+					
+			try{
+				
+				System.out.println("SheetNameTitle-"+SheetNameTitle);	
+				System.out.println("SheetName-"+SheetName);
+				System.out.println("sheetNm-"+sheetNm);
+				Workbook workbook = WorkbookFactory.create(new FileInputStream(SheetName));
+				
+				// Get the first sheet.
+				Sheet sheet = workbook.getSheet(sheetNm);
+				for(int cols=0;cols<110;cols++){
+					
+					Cell cell = sheet.getRow(0).getCell(cols);
+					String stringVal = cell.getStringCellValue();
+					System.out.println(stringVal);
+					System.out.println(colName);
+					
+					if(stringVal.equals(colName)){
+						System.out.println("stringVal-->"+stringVal);
+						System.out.println("cols-"+cols);
+								
+								Cell cell2 = sheet.getRow(rownum).getCell(cols);	
+								System.out.println("colValue"+colValue);
+							//cell2.setCellValue(colValue+'\n');
+								cell2.setCellValue(colValue);
+							
+						}
+						
+						break ;
+					}
+				// Write newly modified workbook to a file.
+				FileOutputStream fileOut = new FileOutputStream(SheetName);
+				workbook.write(fileOut);
+				fileOut.close();
+			}catch(Exception e)
+			{
+			}
+			}
+			//return SheetName; }
+			
+		//********************************************************************************************************************
+}		
+
+		
+	
+	
+	
+
+	
+	
+	  
+	
+	
+
+

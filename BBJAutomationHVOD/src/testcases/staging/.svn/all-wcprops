@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/CM_HVOD/!svn/ver/31/src/testcases/staging
+END
+CreateCollection.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/CM_HVOD/!svn/ver/29/src/testcases/staging/CreateCollection.java
+END
+UpdateSingle.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/CM_HVOD/!svn/ver/29/src/testcases/staging/UpdateSingle.java
+END
+CreateSingle.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/CM_HVOD/!svn/ver/29/src/testcases/staging/CreateSingle.java
+END
+UpdateSeries.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/CM_HVOD/!svn/ver/31/src/testcases/staging/UpdateSeries.java
+END
+CreateSeries.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/CM_HVOD/!svn/ver/29/src/testcases/staging/CreateSeries.java
+END
+UpdateCollection.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/CM_HVOD/!svn/ver/30/src/testcases/staging/UpdateCollection.java
+END

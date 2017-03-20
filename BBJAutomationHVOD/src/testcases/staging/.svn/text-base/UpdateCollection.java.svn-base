@@ -1,0 +1,526 @@
+package testcases.staging;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import pages.staging.StagingAddAsset;
+import pages.staging.StagingAddtoSchedule;
+import pages.staging.StagingCatalog;
+import pages.staging.StagingCreateContent;
+import pages.staging.StagingEditSchedule;
+import pages.staging.StagingGroup;
+import pages.staging.StagingImages;
+import pages.staging.StagingLogin;
+import pages.staging.StagingMISReporting;
+import pages.staging.StagingMain;
+import pages.staging.StagingScheduleEntires;
+import pages.staging.StagingTitle;
+import pages.staging.StagingVosp;
+import utility.AdvanceReporter;
+import utility.Utility;
+
+public class UpdateCollection extends Utility {
+	  WebDriver driver;
+	   AdvanceReporter reporter;
+	   private ArrayList<String> AllPlatform,vospPlatform,youviewPlatform;
+	   private HashMap<String,String> PlatformVarient,PlatformPresentationVideoQuality =new HashMap<String,String>();    
+	   boolean result = false;
+	   StagingMain main = null;
+	   String SchedulingID =null;
+	   
+	  @BeforeMethod
+	  public void beforeMethod() {
+	  
+		  driver = new FirefoxDriver();
+		  driver.manage().window().maximize();
+		  reporter = new AdvanceReporter(driver);
+	  }
+
+	  @AfterMethod
+	  public void afterMethod() {
+		  
+		//  driver.quit();
+	  }
+	  
+	  @Test
+	  public void UpdateCollection() {
+		 
+		   
+		  try {
+			  
+			   /* --------------------------Login Start ------------------------------------- */
+			  
+				  StagingLogin login = new StagingLogin(driver);
+				  
+				  result = login.navigatetoStaging();
+				  Assert.assertTrue(result, "Failed to launch Staging instance."); 
+			  	  reporter.log("Staging Launched Successfully");
+			  
+			  	  String strUserName=xlreadint(1, 1);
+			  	  result = login.setUsername(strUserName);
+			  	  Assert.assertTrue(result, "Failed to Set Username"); 
+			  	  reporter.log("Username Set Successfully");
+			  	 
+			  	  String strPassword=xlreadint(2, 1);
+			  	  result = login.setPassword(strPassword);
+			  	  Assert.assertTrue(result, "Failed to Set Password");
+			  	  reporter.log("Password Set Successfully");
+			  	  
+			  	  reporter.logWithScreenshot("Submit Button Clicked Successfully");
+			  	  result = login.clickSubmit();
+			  	  Assert.assertTrue(result, "Failed to Click Submit Button");
+			  	  System.out.println("User Successfuly logged in");
+			  	  		  	  
+			  	/* --------------------------Login End ------------------------------------- */
+			  	  
+			  	  String UpdateFlag =xlRead("UpdateFlag");
+			  	  
+			  	  switch(UpdateFlag){
+			  	  
+			  	  case "Add_Episode":
+			  		    this.addEpisode();
+			  		    break;
+			  	  default:
+			  		  System.out.println("Please Select Correct Update Field");
+			  	  
+			  	  }
+			  	  
+			  	  
+			  	  
+			   				   	
+			   	
+			   	
+			  } catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally{
+					try {
+						  if(result){
+						 	reporter.log("Status:Passed");
+						 	//To write in the Source File
+						 	String Status="Pass"; 
+						 	ForSFGCheck(Status, SchedulingID); 
+						   
+						  }else{
+							 reporter.logWithScreenshot("Script Failed at page");
+							 reporter.log("Status:Failed");
+							//To write in the Source File
+							 	String Status="Fail"; 
+							 	ForSFGCheck(Status, SchedulingID); 
+						  }
+						  Thread.sleep(2000);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+	  }
+
+	
+	  
+	  public void addEpisode() {
+		// TODO Auto-generated method stub
+		  
+		  System.out.println("Inside Add Episode");
+		try{
+			  int EpiNum = Integer.parseInt(xlRead("EpisodeNum"));
+		  	  for(int j=1; j <= EpiNum ; j++ ){
+		  		  
+			  	  StagingCatalog  catalog = new StagingCatalog(driver);
+			  	  result = catalog.navigatetoCatalog();
+			  	  Assert.assertTrue(result, "Navigate to catalog failed"); 
+			  	  reporter.log("navigate to catalog Successfully");
+		  	  	  	  
+			  	  result = catalog.clickCreateImport();
+			  	  Assert.assertTrue(result, "Failed to click createImport button"); 
+			  	  reporter.log("create Import Button Clicked Successfully");
+		  	  
+			  	  String contentType = xlRead("Title_Type");
+			  	  if(contentType.contains("Trailer") || contentType.contains("Short-form")){
+			  		contentType = "Feature";
+			  	  }else{
+			  		contentType = xlRead("Title_Type");
+			  	  }
+			  	  
+			  	  System.out.println("contentType:"+contentType);
+		  	  
+			  	  result = catalog.selectContentType(contentType);
+			  	  Assert.assertTrue(result, "Failed to Select Create Feature"); 
+			   	  reporter.logWithScreenshot("Create Feature Button Clicked Successfully");
+		    
+		  	/* --------------------------Catalog End ------------------------------------- */  
+		   	  
+		    /* --------------------------Create Page Start ------------------------------------- */   
+			   	  StagingCreateContent createContent = new StagingCreateContent(driver);	
+			   	  
+			   	  String EpisodeName  = "Episode" +j+"Name";
+			   	  
+			   	  String strTitleName=xlRead(EpisodeName);
+			   	  
+			   	  result = createContent.setTitleName(strTitleName);
+			   	  Assert.assertTrue(result, "Failed to Enter Title Name"); 
+			   	  reporter.log("Title Name Entered Successfully");
+		   	  
+			   	  String strLicensor=xlRead("Licensor");
+			   	  result = createContent.setLicensorTitle(strLicensor);
+			   	  Assert.assertTrue(result, "Failed to Enter Licensor Name"); 
+			   	  reporter.log("Licensor Name Entered Successfully");
+		   	  
+		       	  result = createContent.clickSubmit();
+			  	  Assert.assertTrue(result, "Failed to click Create Button"); 
+			   	  reporter.logWithScreenshot("Create Button Clicked Successfully");
+		   /* --------------------------Create Page End ------------------------------------- */   	  
+			   	  
+			   	  
+			   	  String strVOSP_Version = xlRead("VOSP_Version");
+			   	  System.out.println("VOSP_Version:"+strVOSP_Version);
+			   	  StagingMain main = new StagingMain(driver);
+			   	  if(strVOSP_Version.equalsIgnoreCase("2.1")){                            //For VOSP Version 2.1
+			   		  result = main.clickNavLink("VOSP");
+				   	  Assert.assertTrue(result, "Failed to Click VOSP Link"); 
+				   	  reporter.log("VOSP Link Clicked Successfully");
+			   	    	 
+				   	  result =  main.clickEditMetadata();
+				   	  Assert.assertTrue(result, "Failed to Click Metadata Button"); 
+				   	  reporter.log("Metadata Button Clicked Successfully");
+			   	  
+			   	  /*------------------------Vosp Page Start ------------------*/
+				   	  StagingVosp vosp = new StagingVosp(driver);
+				   	  result =  vosp.clickrdoVOSP();
+				   	  Assert.assertTrue(result, "Failed to click VOSP Radio Button "); 
+				   	  reporter.log("VOSP Radio Button Clicked Successfully");
+				   	  
+				   	  result =  vosp.clickUpdateButton();
+				   	  Assert.assertTrue(result, "Failed to click Update Button "); 
+				   	  reporter.logWithScreenshot("Update Button Clicked Successfully");
+				   	 /*------------------------Vosp Page End ------------------*/
+			   	  }
+		   	  
+		   	   	result = main.clickNavLink("Title");
+		   	   	Assert.assertTrue(result, "Failed to Click Title Link"); 
+		   	   	reporter.log("Title	 Link Clicked Successfully");
+		   	 
+		   	   	result =  main.clickEditMetadata();
+		   	   	Assert.assertTrue(result, "Failed to Click Metadata Button"); 
+		   	   	reporter.log("Metadata Button Clicked Successfully");
+		   	
+		   	   	/*------------------------Title Page Start ------------------*/
+		   	   	StagingTitle title = new StagingTitle(driver);
+		   	  
+		   	   	String strTitleType = xlRead("Title_Type");
+		   	   	System.out.println("Title Type:"+strTitleType);
+		   	   	result = title.setTitleType(strTitleType);
+		   	   	Assert.assertTrue(result, "Failed to Select Title Type"); 
+		   	   	reporter.log("Title Type Selected Successfully");
+		  	  
+		   	   	System.out.println("Title Name:"+strTitleName);
+		   	   	result = title.setTitleName(strTitleName);
+		   	   	Assert.assertTrue(result, "Failed to Enter Title Name"); 
+		   	   	reporter.log("Title Name Entered Successfully");
+		  	  
+		   	   	String strTitleShort = xlRead("Title_ShortDesc");
+		   	   	result = title.setTitleShortDesc(strTitleShort);
+		   	   	Assert.assertTrue(result, "Failed to Enter Short Description"); 
+		   	   	reporter.log("Short Description Entered Successfully");
+		  	  
+		   	   	String strTitleMedium = xlRead("Title_MediumDesc");
+		   	   	result = title.setTitleMediumDesc(strTitleMedium);
+		   	   	Assert.assertTrue(result, "Failed to Enter Medium Description"); 
+		   	   	reporter.log("Medium Description Entered Successfully");
+		  	  
+		   	   	String strTitleLong = xlRead("Title_LongDesc");
+		   	   	result = title.setTitleLongDesc(strTitleLong);
+		   	   	Assert.assertTrue(result, "Failed to Enter Long Description"); 
+		   	   	reporter.log("Long Description Entered Successfully");
+		  	  
+			  
+		     
+			    String strTitleCategory = xlRead("Title_Category");
+		   	  	System.out.println("Title_Category:"+strTitleCategory);
+		   	  	result = title.setTitleCategory(strTitleCategory);
+		   	  	Assert.assertTrue(result, "Failed to Select Title Category"); 
+		   	  	reporter.log("Title Category Selected Successfully");
+		  	  
+		  	  
+			  	String strTitleYear = xlRead("Title_ReleaseYr");
+			   	System.out.println("Title Year:"+strTitleYear);
+			  	result = title.setTitleYear(strTitleYear);
+			  	Assert.assertTrue(result, "Failed to Enter Title Year"); 
+			  	reporter.log("Title Year Entered Successfully");
+		  	   	
+			  	String strProductSubscription = xlRead("Product_Subscription");
+			  	 if(strProductSubscription.equalsIgnoreCase("BT Vision Music") || strProductSubscription.equalsIgnoreCase("BT Vision Kids") ){ 
+				  	  result = title.setTitleArtistName("Automation");
+				  	  Assert.assertTrue(result, "Failed to Enter Artist Name"); 
+				  	  reporter.log("Artist Name Entered Successfully");
+			  	 }
+		  	 
+			  	 String EST = xlRead("EST");   // IF Asset is EST HD then we have to enter Linked Asset ID Value which is 7 digit and present in URL
+			  	 if(EST.equalsIgnoreCase("Yes")){
+			  		 String ESTVarient = xlRead("ESTVarient");
+			  		 if(ESTVarient.contains("HD")){
+			  			 String url = driver.getCurrentUrl();
+			  			 String LinkedAssetID = null;
+				  			Pattern p = Pattern.compile("(\\d+)");
+				  			Matcher m = p.matcher(url);
+				  			if (m.find()) {
+				  				LinkedAssetID =m.group();
+				  			}
+				  			
+				  			result = title.setTitleLinkedID(LinkedAssetID);
+						  	Assert.assertTrue(result, "Failed to Set Linked Asset ID"); 
+						  	reporter.log("Linked Asset ID set Successfully");
+			  		 }
+			  		 
+			  	 } 
+			  	 reporter.logWithScreenshot("Title Metadata Entered Successfully");
+		  	 
+			  	 result = title.clickSubmit();
+			  	 Assert.assertTrue(result, "Failed to click on Submit Button"); 
+			  	 reporter.log("Submit Button Clicked Successfully");
+		  	  
+			 /*------------------------Title Page End ------------------*/
+		   	
+			   	result = main.clickNavLink("Asset");
+			   	Assert.assertTrue(result, "Failed to Click Asset Link"); 
+			   	reporter.log("Title	 Link Clicked Successfully");
+			   	 
+			   	result =  main.clickAddAsset();
+			   	Assert.assertTrue(result, "Failed to Click Add Asset Button"); 
+			   	reporter.log("Add Asset Button Clicked Successfully");
+		  	 
+		    /*------------------------Asset Page End ------------------*/
+		   	
+			   	StagingAddAsset asset = new StagingAddAsset(driver);
+			   	
+			   	String strAssetDesc =  xlRead("Asset_Description");
+			   	result = asset.setAssetDesc(strAssetDesc);  
+				Assert.assertTrue(result, "Failed to Enter Asset Desc"); 
+			   	reporter.log("Asset Description Entered Successfully");
+			   	
+				String strAssetRuntime =  "02:00:00";
+			   	result = asset.setAssetRuntime(strAssetRuntime);
+				Assert.assertTrue(result, "Failed to Enter Asset Runtime"); 
+			   	reporter.log("Asset Runtime Entered Successfully");
+			   	
+			   	String strAssetLanguage =  "English";
+			   	result = asset.setAssetLanguage(strAssetLanguage);
+				Assert.assertTrue(result, "Failed to Select Asset language"); 
+			   	reporter.log("Asset Language Selected Successfully");
+			   	
+			 	String strAssetRating =  xlRead("Asset_rating");
+			 	result = asset.setAssetRating(strAssetRating);
+				Assert.assertTrue(result, "Failed to Select Asset Rating"); 
+			   	reporter.log("Asset Rating Selected Successfully");
+			    if(EST.equalsIgnoreCase("Yes")){
+			  		String ESTVarient = xlRead("ESTVarient");
+			  		if(ESTVarient.contains("HD")){
+			  			String strAssetResolution = "HD";		  			
+			  			result = asset.setAssetResolution(strAssetResolution);
+			  			Assert.assertTrue(result, "Failed to Select Asset Resolution"); 
+			  		   	reporter.log("Asset Resolution Selected Successfully");
+			  		 }
+			  		 
+			  	 }
+			    
+			   	
+			 	result = asset.setAssetRatio();
+				Assert.assertTrue(result, "Failed to Select Asset Ratio"); 
+			   	reporter.log("Asset Ratio Selected Successfully");
+			   
+			    reporter.logWithScreenshot("Asset Metadata Entered Successfully");
+			    
+	
+			 	result = asset.clickUpdateButton();
+				Assert.assertTrue(result, "Failed to Click Update Button"); 
+			   	reporter.log("Button Clicked Successfully");
+			    /*------------------------Asset Page End ------------------*/
+		   	
+				result = main.clickNavLink("Images");
+			   	Assert.assertTrue(result, "Failed to Click Image Link"); 
+			   	reporter.log("Title	Image Clicked Successfully");
+			   	StagingImages images = new StagingImages(driver);
+		   	
+		   
+			    /*------------------------Images Page Start ------------------*/	
+			   	String Scheduling_Plaforms = null;
+			   	if(strVOSP_Version.equalsIgnoreCase("2.1")){
+			   		String[][] imagesArr = null;
+			   		
+			   		Scheduling_Plaforms = xlRead("Scheduling_Plaforms");
+			   		
+			   		if(Scheduling_Plaforms.equalsIgnoreCase("both")){
+			   			imagesArr = new String [2][4];
+			   			imagesArr[0][0]= "SampleImg.jpg";
+			   			imagesArr[0][1]= "packshotImage.jpg";
+			   			imagesArr[0][2]= "Packshot";
+			   			imagesArr[0][3]= "VOSP2 > ";
+			   			
+			   			imagesArr[1][0]= "HiresImage.jpg";
+			   			imagesArr[1][1]= "HiresImage.jpg";
+			   			imagesArr[1][2]= "HiRes Packshot";	
+			   			imagesArr[1][3]= "YouView > ";
+			   			
+			   		}else if(Scheduling_Plaforms.equalsIgnoreCase("VOSP")){
+			   			imagesArr = new String [1][4];
+			   			imagesArr[0][0]= "SampleImg.jpg";
+			   			imagesArr[0][1]= "packshotImage.jpg";
+			   			imagesArr[0][2]= "Packshot";
+			   			imagesArr[0][3]= "VOSP2 > ";
+			   		}
+			   		
+			   		System.out.println("imagesArr.length:"+imagesArr.length);
+			   		for(int i=0; i<imagesArr.length;i++){
+			   			
+			   			result = images.clickAddImage(imagesArr[i][0]); 
+			   			Assert.assertTrue(result, "Failed to Add Image"); 
+			   		   	reporter.log(imagesArr[i][2] + " Image Added Successfully");
+			   		   	
+			   			result = images.setImageName(imagesArr[i][1]);
+			   			Assert.assertTrue(result, "Failed to Set Image Name"); 
+			   		   	reporter.log(imagesArr[i][2] + " Image name Entered Successfully");
+			   		   	
+			   			result = images.selectImageEncoding("JPG");
+			   			Assert.assertTrue(result, "Failed to Set Image Encoding"); 
+			   		   	reporter.log(imagesArr[i][2] + " Image Encoding selected Successfully");
+			   		   	
+			   			result =images.selectImageType(imagesArr[i][2]);
+			   			Assert.assertTrue(result, "Failed to Set Image Type"); 
+			   		   	reporter.log(imagesArr[i][2] + " Image Type selected Successfully");
+			   		   	
+			   		   	if(xlRead("SVOD").equalsIgnoreCase("Yes")){
+			   		   		String [] SVODVarientarr = xlRead("SVODVarient").split(";");
+			   		   		for(String SVODVarient :SVODVarientarr){
+			   		   			result =images.setImagePlatform(imagesArr[i][3]+SVODVarient+" > SVOD",false);
+				   		   		Assert.assertTrue(result, "Failed to set "+ imagesArr[i][3]+SVODVarient+" > SVOD platform"); 
+					   		   	reporter.log(imagesArr[i][3]+SVODVarient+" > SVOD platform Set Successfully");
+			   		   		}
+			   		   	}
+			   		   	
+			   		   	if(xlRead("TVOD").equalsIgnoreCase("Yes")){
+			   		   		String [] TVODVarientarr = xlRead("TVODVarient").split(";");
+			   		   		for(String TVODVarient :TVODVarientarr){
+			   		   			result =images.setImagePlatform(imagesArr[i][3]+TVODVarient+" > TVOD",false);
+				   		   		Assert.assertTrue(result, "Failed to set "+ imagesArr[i][3]+TVODVarient+" >TSVOD platform"); 
+					   		   	reporter.log(imagesArr[i][3]+TVODVarient+" > TVOD platform Set Successfully");
+			   		   		}
+			   		   	}
+			   		  
+			   		   	if(xlRead("STVOD").equalsIgnoreCase("Yes")){
+			   		   		String [] STVODVarientarr = xlRead("STVODVarient").split(";");
+			   		   		for(String STVODVarient :STVODVarientarr){
+			   		   			result =images.setImagePlatform(imagesArr[i][3]+STVODVarient+" > SVOD/TVOD",false);
+				   		   		Assert.assertTrue(result, "Failed to set "+ imagesArr[i][3]+STVODVarient+" >SVOD/TVOD platform"); 
+					   		   	reporter.log(imagesArr[i][3]+STVODVarient+" > SVOD/TVOD platform Set Successfully");
+			   		   		}
+			   		   	}
+			   		   	if(xlRead("EST").equalsIgnoreCase("Yes")){
+			   		   		String [] ESTVarientarr = xlRead("ESTVarient").split(";");
+			   		   		for(String ESTVarient :ESTVarientarr){
+			   		   			result =images.setImagePlatform(imagesArr[i][3]+ESTVarient+" > EST",false);
+				   		   		Assert.assertTrue(result, "Failed to set "+ imagesArr[i][3]+ESTVarient+" >EST platform"); 
+					   		   	reporter.log(imagesArr[i][3]+ESTVarient+" > SVOD/TVOD platform Set Successfully");
+			   		   		}
+			   		   	}
+			   		   	
+			   			reporter.logWithScreenshot(imagesArr[i][2] + " Image detail Entered Successfully");
+			   		   	
+			   			
+			   			result = images.clickSubmit();
+			   			Assert.assertTrue(result, "Failed to Click Update Buton"); 
+			   		   	reporter.log(imagesArr[i][2] + " Image update Button clicked Successfully");
+			   		   	
+			   			Thread.sleep(5000);
+			   			
+			   		}
+			   	}
+			   	
+			    /*------------------------Images Page End ------------------*/
+			   	
+				/* MIS REporting Page  */
+			   	if(strProductSubscription.equalsIgnoreCase("BT Vision Music") || strProductSubscription.equalsIgnoreCase("BT Vision Kids") ){ 
+			    	
+			    	result = main.clickNavLink("MIS Reporting");
+				   	Assert.assertTrue(result, "Failed to Click MIS Reporting Link"); 
+				   	reporter.log("MIS Reporting link Clicked Successfully");
+				   	
+				    result =  main.clickEditMetadata();
+				   	Assert.assertTrue(result, "Failed to Click Metadata Button"); 
+				   	reporter.log("Metadata Button Clicked Successfully");
+				   	
+				   	StagingMISReporting MISReporting = new StagingMISReporting(driver);
+				   	
+				   	result = MISReporting.setRoyaltyCategory("Music-Shortform");
+				   	Assert.assertTrue(result, "Failed to set Royalty Category"); 
+				   	reporter.log("Royalty Category Set Successfully");
+				   	
+					result = MISReporting.setISRCValue("USUV71100181");
+				   	Assert.assertTrue(result, "Failed to set ISRC Value"); 
+				   	reporter.log("ISRC Value Set Successfully");
+				   	
+				   	
+				   	result = MISReporting.clickUpdateButton();
+				   	Assert.assertTrue(result, "Failed to click Update button"); 
+				   	reporter.log("Update Button Clicked Successfully");
+				  	    	
+			  	 }
+			    
+			    /* MIS REporting Page  */
+
+		  	  }
+		  	  
+		  	StagingCatalog catalog = new StagingCatalog(driver);  
+		  	
+		  	String strContentName = xlRead("AssetTitle");
+
+			result = catalog.setSerchText(strContentName);
+			Assert.assertTrue(result, "Failed to search the content name");
+			reporter.logWithScreenshot("Content Successfully searched");
+
+			result = catalog.clickSearchedContent(strContentName);
+			Assert.assertTrue(result, "Searched content could not be clicked");
+		  	reporter.log("Searched Content clicked successfully");
+		  	
+			StagingMain main = new StagingMain(driver);  
+			
+			result = main.clickNavLink("Title");
+			Assert.assertTrue(result, "Failed to click title link");
+			reporter.log("Title Link Clicked Successfully");
+			
+			result = main.clickEditTitles();
+			Assert.assertTrue(result, "Failed to click Edit Title Button");
+			reporter.log("Edit Title button Clicked Successfully");
+			
+			StagingCreateContent create = new StagingCreateContent(driver);
+			
+			for(int j=1; j <= EpiNum ; j++ ){
+				 String EpisodeName  = "Episode" +j+"Name";
+				 String strEpisodeName=xlRead(EpisodeName);
+				 
+				 result = create.addEpisodeCollection(strEpisodeName);
+				 Assert.assertTrue(result, "Failed to Add Episode");
+				 reporter.log("Episode Added Successfully");
+			}
+			
+			result = create.clickSubmit();
+			Assert.assertTrue(result, "Failed to click submit button");
+			reporter.log("Submit Button Clicked Successfully");
+			
+			int numOldEpisode = main.getnumOldEpisode(EpiNum);
+			System.out.println("numOldEpisode"+numOldEpisode);
+			
+		}catch(Exception e){
+			
+		}
+	}
+	  
+}

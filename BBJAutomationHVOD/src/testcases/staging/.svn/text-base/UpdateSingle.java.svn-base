@@ -1,0 +1,344 @@
+package testcases.staging;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import pages.staging.StagingAddAsset;
+import pages.staging.StagingCatalog;
+import pages.staging.StagingEditSchedule;
+import pages.staging.StagingImages;
+import pages.staging.StagingLogin;
+import pages.staging.StagingMain;
+import pages.staging.StagingScheduleEntires;
+import pages.staging.StagingTitle;
+import utility.AdvanceReporter;
+import utility.Utility;
+
+public class UpdateSingle extends Utility {
+
+	WebDriver driver;
+	AdvanceReporter reporter;
+	Utility util;
+	boolean result;
+	String strContentName = null;
+	StagingCatalog catalog;
+	StagingMain main;
+	StagingAddAsset asset;
+	StagingTitle title;
+	StagingScheduleEntires scheduleEntry, vospPlatform, youviewPlatform;
+	private ArrayList<String> AllPlatform, vospPlatformChk;
+	StagingEditSchedule editSchedule;
+	String updateFlg;
+	private HashMap<String, String> PlatformVarient,
+			PlatformPresentationVideoQuality = new HashMap<String, String>();
+
+	@BeforeTest
+	public void testsetup() {
+		driver = new FirefoxDriver();
+		reporter = new AdvanceReporter(driver);
+		result = false;
+		util = new Utility();
+		catalog = new StagingCatalog(driver);
+		main = new StagingMain(driver);
+		scheduleEntry = new StagingScheduleEntires(driver);
+		editSchedule = new StagingEditSchedule(driver);
+		asset = new StagingAddAsset(driver);
+		title = new StagingTitle(driver);
+
+	}
+
+	@Test
+	public void UpdateSingleContent() {
+
+		try {
+
+			/*
+			 * --------------------------Login Start
+			 * -------------------------------------
+			 */
+
+			String Flag = util.xlRead("Flag");
+			updateFlg = util.xlRead("UpdateFlag");
+
+			StagingLogin login = new StagingLogin(driver);
+
+			result = login.navigatetoStaging();
+			Assert.assertTrue(result, "Failed to launch Staging instance.");
+			reporter.log("Staging Launched Successfully");
+
+			 String strUserName=xlreadint(1, 1);
+		  	  result = login.setUsername(strUserName);
+		  	  Assert.assertTrue(result, "Failed to Set Username"); 
+		  	  reporter.log("Username Set Successfully");
+		  	 
+		  	  String strPassword=xlreadint(2, 1);
+		  	  result = login.setPassword(strPassword);
+		  	  Assert.assertTrue(result, "Failed to Set Password");
+		  	  reporter.log("Password Set Successfully");
+
+			reporter.logWithScreenshot("Submit Button Clicked Successfully");
+			result = login.clickSubmit();
+			Assert.assertTrue(result, "Failed to Click Submit Button");
+			System.out.println("User Successfuly logged in");
+
+			/*
+			 * --------------------------Login End
+			 * -------------------------------------
+			 */
+
+			/*
+			 * -------------------------- Search the content
+			 * ---------------------------
+			 */
+			strContentName = util.xlRead("AssetTitle");
+
+			result = catalog.setSerchText(strContentName);
+			Assert.assertTrue(result, "Failed to search the content name");
+			reporter.logWithScreenshot("Content Successfully searched");
+
+			result = catalog.clickSearchedContent(strContentName);
+			Assert.assertTrue(result, "Searched content could not be clicked");
+
+			/*
+			 * -------------------------- Content Search End
+			 * ---------------------------
+			 */
+
+			// Change the rating of the single content
+
+			if (updateFlg.equalsIgnoreCase("Rating")) {
+				result = main.clickNavLink("Assets");
+				Assert.assertTrue(result, "Failed to Click Asset Link");
+				reporter.log("Title Link Clicked Successfully");
+
+				result = main.editAsset();
+				Assert.assertTrue(result, "Failed to click edit button");
+				reporter.log("Edit link clicked successfully");
+
+				String strRating = util.xlRead("Asset_rating");
+				result = asset.setAssetRating(strRating);
+				Assert.assertTrue(result, "Failed to change rating");
+				reporter.log("Rating changed successfully");
+
+				result = asset.clickUpdateButton();
+				Assert.assertTrue(result, "Failed to Click Update Button");
+				reporter.log("Button Clicked Successfully");
+			}
+
+			if (updateFlg.equalsIgnoreCase("Metadata")) {
+				result = main.clickNavLink("Title");
+				Assert.assertTrue(result, "Failed to Click Title Link");
+				reporter.log("Title	 Link Clicked Successfully");
+
+				result = main.clickEditMetadata();
+				Assert.assertTrue(result, "Failed to Click Metadata Button");
+				reporter.log("Metadata Button Clicked Successfully");
+
+				String strTitleShort = util.xlRead("Title_ShortDesc");
+				result = title.setTitleShortDesc(strTitleShort);
+				Assert.assertTrue(result, "Failed to Enter Short Description");
+				reporter.log("Short Description Entered Successfully");
+
+				String strTitleMedium = util.xlRead("Title_MediumDesc");
+				result = title.setTitleMediumDesc(strTitleMedium);
+				Assert.assertTrue(result, "Failed to Enter Medium Description");
+				reporter.log("Medium Description Entered Successfully");
+
+				String strTitleLong = util.xlRead("Title_LongDesc");
+				result = title.setTitleLongDesc(strTitleLong);
+				Assert.assertTrue(result, "Failed to Enter Long Description");
+				reporter.log("Long Description Entered Successfully");
+
+				result = title.clickSubmit();
+				Assert.assertTrue(result, "Failed to click on Submit Button");
+				reporter.log("Submit Button Clicked Successfully");
+
+			}
+			
+			if (updateFlg.equalsIgnoreCase("Image")) {
+				String[][] imagesArr = null;
+				result = main.clickNavLink("Images");
+			   	Assert.assertTrue(result, "Failed to Click Image Link"); 
+			   	reporter.log("Title	Image Clicked Successfully");
+			   	StagingImages images = new StagingImages(driver);
+			   	
+			   
+			    /*------------------------Images Page Start ------------------*/	
+			   	String Scheduling_Plaforms = null;
+			   	String strVOSP_Version = util.xlRead("VOSP_Version");
+			   	if(strVOSP_Version.equalsIgnoreCase("2.1")){
+			   		
+			   		
+			   		Scheduling_Plaforms = util.xlRead("Scheduling_Plaforms");
+			   		
+			   		if(Scheduling_Plaforms.equalsIgnoreCase("both")){
+			   			imagesArr = new String [2][4];
+			   			imagesArr[0][0]= "SinglePackshotupdate.jpg";
+			   			imagesArr[0][1]= "packshotImageUpdate.jpg";
+			   			imagesArr[0][2]= "Packshot";
+			   			//imagesArr[0][3]= "VOSP2 > ";
+			   			
+			   			imagesArr[1][0]= "Hiresupdate.jpg";
+			   			imagesArr[1][1]= "Hiresupdate.jpg";
+			   			imagesArr[1][2]= "HiRes Packshot";	
+			   			//imagesArr[1][3]= "YouView > ";
+			   			
+			   		}else if(Scheduling_Plaforms.equalsIgnoreCase("VOSP")){
+			   			imagesArr = new String [1][4];
+			   			imagesArr[0][0]= "SampleImg.jpg";
+			   			imagesArr[0][1]= "packshotImage.jpg";
+			   			imagesArr[0][2]= "Packshot";
+			   			//imagesArr[0][3]= "VOSP2 > ";
+			   		}
+			   	}
+			   	
+			   	for(int i=0; i<imagesArr.length;i++){
+		   			result = images.editImage(); 
+		   			Assert.assertTrue(result, "Failed to Edit Image"); 
+		   		   	reporter.log(imagesArr[i][1] + " Image Added Successfully");
+		   		   	
+		   			result = images.replaceImage(imagesArr[i][0]);
+		   			Assert.assertTrue(result, "Failed to replace"); 
+		   		   	reporter.log(imagesArr[i][1] + " Image replaced Successfully");
+		   		   	
+		   		   	result = images.clickSubmit();
+		   			Assert.assertTrue(result, "Failed to Click Update Buton"); 
+		   		   	reporter.log("Image update Button clicked Successfully");
+			   	}
+			}
+
+			result = main.clickNavLink("Schedule");
+			Assert.assertTrue(result, "Failed to Click Schedule Link");
+			reporter.log("Schedule link Clicked Successfully");
+
+			result = main.clickSchedulePage();
+			Assert.assertTrue(result, "Unable to click schedule page");
+			reporter.logWithScreenshot("Navigated to schedule entries");
+
+			/*
+			 * -------------------------- Schedule Entries Start
+			 * ---------------------------
+			 */
+			result = scheduleEntry.setPlatformId();
+			Assert.assertTrue(result, "Platform Entries not Available");
+			reporter.log("Platform ID's Collected Successfully");
+
+			Thread.sleep(10000);
+
+			AllPlatform = scheduleEntry.getAllPlatformId();
+
+			/*------------------Change the subscriptions ---------------------------*/
+
+			for (int i = 0; i < AllPlatform.size(); i++) {
+				result = scheduleEntry.clickCheckBox(AllPlatform.get(i));
+				Assert.assertTrue(result, "Failed to click on Checkbox");
+				reporter.log("Checkbox clicked succeessfully");
+
+				result = scheduleEntry.clickEditbtn();
+				Assert.assertTrue(result, "Failed to click Edit Button");
+				reporter.log("Edit Button clicked succeessfully");
+
+				PlatformVarient = scheduleEntry.getPlatformVarient();
+				PlatformPresentationVideoQuality = scheduleEntry
+						.getPlatformPresentationVideoQuality();
+
+				if (updateFlg.equalsIgnoreCase("Subscription")) {
+					String strSubs = util.xlRead("Product_Subscription");
+					result = editSchedule.setSubscriptions(strSubs,
+							AllPlatform.get(i), Flag);
+					Assert.assertTrue(result,
+							"Unable to select the subscriptions");
+					reporter.logWithScreenshot("SVOD subscription changed successfully");
+				}
+
+				if (updateFlg.equalsIgnoreCase("Price")) {
+					String strPrice = null;
+					if (PlatformVarient.get(AllPlatform.get(i))
+							.equalsIgnoreCase("TVOD")) {
+						if (util.xlRead("TVODVarient").contains(";")) {
+							String[] TVODPricearr = util.xlRead("TVODPrice")
+									.split(";");
+							if (PlatformPresentationVideoQuality.get(
+									AllPlatform.get(i)).equals("SD")) {
+								strPrice = TVODPricearr[0];
+							} else {
+								strPrice = TVODPricearr[1];
+							}
+						} else {
+							strPrice = util.xlRead("TVODPrice");
+						}
+					} else if (PlatformVarient.get(AllPlatform.get(i)).equals(
+							"EST")) {
+						if (util.xlRead("ESTVarient").contains(";")) {
+							String[] strPricearr = util.xlRead("ESTPrice")
+									.split(";");
+							if (PlatformPresentationVideoQuality.get(
+									AllPlatform.get(i)).equals("SD")) {
+								strPrice = strPricearr[0];
+							} else {
+								strPrice = strPricearr[1];
+							}
+						} else {
+							strPrice = util.xlRead("ESTPrice");
+						}
+					}
+					result = editSchedule.setPrice(strPrice,
+							AllPlatform.get(i), Flag);
+					Assert.assertTrue(result, "Failed to Select Price");
+					reporter.log("Price Set succeessfully");
+				}
+
+				result = editSchedule.clickSubmit();
+				Assert.assertTrue(result, "Failed to click Update Button");
+				reporter.log("Update button clicked succeessfully");
+			}
+
+			vospPlatformChk = scheduleEntry.getVospPlatformId();
+			for (int i = 0; i < vospPlatformChk.size(); i++) {
+				result = scheduleEntry.clickCheckBox(vospPlatformChk.get(i));
+				Assert.assertTrue(result, "Failed to click on Checkbox");
+				reporter.log("Checkbox clicked succeessfully");
+			}
+
+			result = scheduleEntry.clickPublishButton(); // Publish the content
+															// having VoSP
+															// platform
+			reporter.logWithScreenshot("Contents published sucessfully");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (result) {
+					reporter.log("Status:Passed");
+
+				} else {
+					reporter.logWithScreenshot("Script Failed at page");
+					reporter.log("Status:Failed");
+				}
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@AfterMethod
+	public void afterMethod() {
+		try {
+			driver.quit();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
